@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Hoon Hwangbo" />
+
+<meta name="date" content="2019-06-25" />
+
+<title>gainML: Preparation and Implementation</title>
+
+
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#header {
+text-align: center;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">gainML: Preparation and Implementation</h1>
+<h4 class="author">Hoon Hwangbo</h4>
+<h4 class="date">2019-06-25</h4>
+
+
+
+<p>This documents illustrates how to prepare data, how to implement the package, and what the resulting objects are.</p>
+<div id="data-preparation" class="section level2">
+<h2>Data preparation</h2>
+<p>For the analysis, this package requires to use at least three turbine datasets (dataframes); one for each of reference turbine, baseline control turbine, and neutral control turbine.</p>
+<ul>
+<li>All dataframes must have at least two data columns, one for timestamp and another for turbine id, the column numbers can be set through <code>col.time</code> and <code>col.turb</code>.</li>
+<li>Other than the two columns, a dataset of a reference turbine must include wind direction, power output, and air density in sequence.</li>
+<li>Other than the two columns, a dataset of a control turbine (both baseline and neutral) must include wind speed and power output in sequence.</li>
+</ul>
+</div>
+<div id="implementation" class="section level2">
+<h2>Implementation</h2>
+<p>To use the package, a user first needs to load the package (attach the package to the current R environment).</p>
+<pre><code>library(gainML)</code></pre>
+<div id="point-estimation-of-gain" class="section level3">
+<h3>Point estimation of gain</h3>
+<p>Once the package is loaded, a user can (i) simply run a single function <code>analyze.gain</code> or (ii) choose to run multiple functions in sequence (<code>analyze.gain</code> basically runs these functions in sequence).</p>
+<ul>
+<li><p>When using <code>analyze.gain</code>:</p>
+<pre><code># Analyze Gain in a Single Step
+point.res &lt;- analyze.gain(df.ref, df.ctrb, df.ctrn, p1.beg = &#39;2014-10-24&#39;,
+                          p1.end = &#39;2015-10-25&#39;, p2.beg = &#39;2015-10-25&#39;,
+                          p2.end = &#39;2016-10-26&#39;, ratedPW = 1000, AEP = 300000,
+                          pw.freq = pw.freq)
+
+point.res$gain.res$gain   #Provides the point estimate of gain</code></pre></li>
+<li><p>When using multiple functions:</p>
+<pre><code># Prepare Data
+data &lt;- arrange.data(df.ref, df.ctrb, df.ctrn, p1.beg = &#39;2014-10-24&#39;,
+                     p1.end = &#39;2015-10-25&#39;, p2.beg = &#39;2015-10-25&#39;, p2.end = &#39;2016-10-26&#39;)
+
+# Period 1 Analysis
+p1.res &lt;- analyze.p1(data$train, data$test, ratedPW = 1000)
+
+# Period 2 Analysis
+p2.res &lt;- analyze.p2(data$per1, data$per2, p1.res$opt.cov)
+
+# Quantify gain
+gain.res &lt;- quantify.gain(p1.res, p2.res, ratedPW = 1000, AEP = 300000, pw.freq = pw.freq)
+
+gain.res$gain   #Provides the point estimate of gain</code></pre></li>
+<li><p>When using <code>analyze.gain</code> for <strong>free sector analysis</strong>:</p>
+<pre><code>free.sec &lt;- list(c(310, 50), c(150, 260))   #Defines the free sectors
+
+# Analyze Gain in a Single Step
+point.res &lt;- analyze.gain(df.ref, df.ctrb, df.ctrn, p1.beg = &#39;2014-10-24&#39;,
+                          p1.end = &#39;2015-10-25&#39;, p2.beg = &#39;2015-10-25&#39;,
+                          p2.end = &#39;2016-10-26&#39;, ratedPW = 1000, AEP = 300000,
+                          pw.freq = pw.freq, free.sec = free.sec)</code></pre>
+<p><strong>Note</strong>: <code>free.sec</code> is a list of vectors defining free sectors. Each vector in the list has two scalars: one for starting direction and another for ending direction, ordered clockwise.</p></li>
+</ul>
+<p>For the details about the functions, please refer to the package manual (in a <code>pdf</code> format).</p>
+</div>
+<div id="interval-estimation-of-gain-by-using-bootstrap" class="section level3">
+<h3>Interval estimation of gain (by using bootstrap)</h3>
+<p>Once the package is loaded, a user needs to run a series of functions as illustrated below.</p>
+<ul>
+<li><p>Full sector analysis:</p>
+<pre><code># Prepare Data
+data &lt;- arrange.data(df.ref, df.ctrb, df.ctrn, p1.beg = &#39;2014-10-24&#39;,
+                     p1.end = &#39;2015-10-25&#39;, p2.beg = &#39;2015-10-25&#39;, p2.end = &#39;2016-10-26&#39;)
+
+# Period 1 Analysis
+p1.res &lt;- analyze.p1(data$train, data$test, ratedPW = 1000)
+
+# Gain Analysis by Using Bootstrap
+n.rep &lt;- 10   #Defines the number of replications.
+interval.res &lt;- bootstrap.gain(df.ref, df.ctrb, df.ctrn, opt.cov = p1.res$opt.cov,
+                               n.rep = n.rep, p1.beg = &#39;2014-10-24&#39;,
+                               p1.end = &#39;2015-10-25&#39;, p2.beg = &#39;2015-10-25&#39;,
+                               p2.end = &#39;2016-10-26&#39;, ratedPW = 1000, AEP = 300000,
+                               pw.freq = pw.freq, write.path = NULL)
+
+sapply(res, function(ls) ls$gain.res$gainCurve)   #Provides 10 gain curves
+sapply(res, function(ls) ls$gain.res$gain)        #Provides 10 gain values</code></pre></li>
+<li><p>Free sector analysis:</p>
+<pre><code>free.sec &lt;- list(c(310, 50), c(150, 260))   #Defines the free sectors
+
+# Prepare Data
+data &lt;- arrange.data(df.ref, df.ctrb, df.ctrn, p1.beg = &#39;2014-10-24&#39;,
+                     p1.end = &#39;2015-10-25&#39;, p2.beg = &#39;2015-10-25&#39;,
+                     p2.end = &#39;2016-10-26&#39;, free.sec = free.sec)
+
+# Period 1 Analysis
+p1.res &lt;- analyze.p1(data$train, data$test, ratedPW = 1000)
+
+# Gain Analysis by Using Bootstrap
+n.rep &lt;- 10   #Defines the number of replications.
+interval.res &lt;- bootstrap.gain(df.ref, df.ctrb, df.ctrn, opt.cov = p1.res$opt.cov,
+                               n.rep = n.rep, free.sec = free.sec, p1.beg = &#39;2014-10-24&#39;,
+                               p1.end = &#39;2015-10-25&#39;, p2.beg = &#39;2015-10-25&#39;,
+                               p2.end = &#39;2016-10-26&#39;, ratedPW = 1000, AEP = 300000,
+                               pw.freq = pw.freq, write.path = NULL)
+
+sapply(res, function(ls) ls$gain.res$gainCurve)   #Provides 10 gain curves
+sapply(res, function(ls) ls$gain.res$gain)        #Provides 10 gain values</code></pre>
+<p><strong>Note</strong>: The only difference is to define <code>free.sec</code> and set it as an argument when using <code>arrange.data</code> and <code>bootstrap.gain</code> functions.</p></li>
+</ul>
+</div>
+<div id="remarks" class="section level3">
+<h3>Remarks</h3>
+<ul>
+<li><p>Period 1 analysis will take a significant amount of time, so its progress will be indicated in the R console.</p></li>
+<li><p>A user needs to read and store the long term frequency data manually. To see a desired format, please refer to the <code>pw.freq</code> part in the manual or, in the R console, run</p>
+<pre><code>head(pw.freq)</code></pre></li>
+</ul>
+</div>
+</div>
+<div id="resulting-objects" class="section level2">
+<h2>Resulting Objects</h2>
+<p>The analysis outcome can be obtained from the <code>quantify.gain</code> function (the return from <code>analyze.gain</code> and <code>bootstrap.gain</code> will also include this outcome). The outcome includes:</p>
+<ul>
+<li><p>Gain quantification: initial effect, offset, and gain with offset adjustment.</p></li>
+<li><p>Bin-wise curve: effect curve, offset curve, and gain curve corresponding to each of the above gain quantification, respectively.</p></li>
+</ul>
+<p>Please refer to the package manual for more details.</p>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
